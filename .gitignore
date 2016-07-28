@@ -1,0 +1,6 @@
+# Stuff to ignore
+*.pyc
+.idea/
+.DS_Store
+
+# Project Dirs that dont need to be watched
