@@ -1,22 +1,8 @@
-# osutil v0.3
-
-# Tested on the following,
-# All Arch are 64-bit unless otherwise noted,
-# Python & Cygwin Arch are the same as OS:
-
-# CentOS 7.2
-# CentOS 6.7 (32-bit)
-# Raspbian 8 (ARM)
-# MacOS 10.10
-# Cygwin/Windows 7, 10
-# Winodws 7
-
-import tarfile
 import os
 import shutil
 import platform
+import tarfile
 
-verbose = True
 
 def get_kernel():
 	kernel_name = platform.system()
@@ -29,7 +15,7 @@ def get_kernel():
 	if kernel_name == 'Darwin':
 		kernel_version = kernel_version_full
 
-	if kernel_name == 'CYGWIN_NT-10.0' or kernel_name == 'CYGWIN_NT-6.1':
+	if kernel_name == kernel_name.rpartition('-')[0]:
 		kernel_name = 'Cygwin-NT'
 		kernel_version = kernel_version_full.partition('(')[0]
 
@@ -46,6 +32,7 @@ def get_os():
 	kernel = get_kernel()[0]
 	os_type = None
 	os_version = None
+	os_generic = None
 
 	if kernel == 'Linux':
 		os_type = platform.linux_distribution()[0]
@@ -54,16 +41,18 @@ def get_os():
 		elif (os_type == 'debian') and (file_exists('/usr/bin/raspi-config')):
 			os_type = 'Raspbian'
 
-		os_version = platform.linux_distribution()[1]
+		os_version = platform.linux_distribution()[1][:3]
+		os_generic = 'Linux'
 
 	if kernel == 'Darwin':
 		os_type = 'MacOS'
 		os_version = platform.mac_ver()[0]
+		os_generic = 'Mac'
 
 	if kernel == 'Cygwin-NT':
-		os_type = 'Windows'
+		os_type = 'Cygwin'
 
-		# 5.0 = W2000, 5.1 = XP 6.0 = Vista
+		# 5.0 = W2000, 5.1 = XP, 6.0 = Vista
 
 		if platform.system() == 'CYGWIN_NT-10.0':
 			os_version = '10'
@@ -72,27 +61,16 @@ def get_os():
 		else:
 			os_version = 'N/A'
 
+		os_generic = os_type
+
 	if kernel == 'Windows-NT':
 		os_type = 'Windows'
 		os_version = platform.release()
+		os_generic = os_type
 
-	info = [os_type, os_version]
+	info = [os_type, os_version, os_generic]
 
 	return info
-
-def get_os_generic():
-	kernel = get_kernel()[0]
-
-	if kernel == 'Linux':
-		return 'Linux'
-	elif kernel == 'Darwin':
-		return 'MacOS'
-	elif kernel == 'Cygwin-NT':
-		return 'Cygwin'
-	elif kernel == 'Windows-NT':
-		return 'Windows'
-	else:
-		return 'N/A'
 
 def get_arch():
 	arch = platform.machine()
@@ -190,14 +168,16 @@ def does_this_exist(target):
 def ln(src, dst):
 	os.symlink(src, dst)
 
-def mkdir(target):
+def mkdir(target, path=True, verbose=False):
 	if verbose:
 		print 'Creating: ' + target
 
-	#os.mkdir(target)
-	os.makedirs(target)
+	if path:
+		os.makedirs(target)
+	else:
+		os.mkdir(target)
 
-def rm(target):
+def rm(target, verbose=False):
 	if verbose:
 		print 'Removing: "' + target + '"'
 
@@ -207,13 +187,13 @@ def rm(target):
 	if is_file(target):
 		os.remove(target)
 
-def mv(src, dst):
+def mv(src, dst, verbose=False):
 	if verbose:
 		print 'Moving: "' + src + '" to: "' + dst + '"'
 
 	shutil.move(src, dst)
 
-def cp(src, dst):
+def cp(src, dst, verbose=False):
 	if verbose:
 		print 'Copying: "' + src + '" to: "' + dst + '"'
 
@@ -227,29 +207,19 @@ def cd(dst):
 	os.chdir(dst)
 
 
-def ls(target):
-	dirs = ls_dirs(target)
-	files = ls_files(target)
-
-	return dirs + files
-
-def ls_dirs(target):
-	if target == '':
-		target = get_cwd()
-
+def ls(target, show='all'):
 	dirs = os.walk(target).next()[1]
-	dirs.sort()
-
-	return dirs
-
-def ls_files(target):
-	if target == '':
-		target = get_cwd()
-
 	files = os.walk(target).next()[2]
+
+	dirs.sort()
 	files.sort()
 
-	return files
+	if show == 'dirs':
+		return dirs
+	elif show == 'files':
+		return files
+	else:
+		return dirs + files
 
 def ls_files_by_extention(folder, extention):
 	if folder == '':
@@ -267,75 +237,40 @@ def ls_files_by_extention(folder, extention):
 
 	return result
 
-def targz(target):
+def targz(target, dst='', extract=False, verbose=False):
 
-	cwd = get_cwd()
+	cwd = get_cwd() + '/'
 
-	if target.endswith('/'):
-		name = target[:-1].rpartition('/')[2]
-		parent = target[:-1].rpartition('/')[0] + '/'
-	else:
-		name = target.rpartition('/')[2]
-		parent = target.rpartition('/')[0] + '/'
-
-	if parent == '/':
-		parent = get_cwd() + '/'
-
-	cd(parent)
-
-	if verbose:
-		print 'Archiving: "' + target + '" as: "' + name + '.tar.gz"'
-
-	tar = tarfile.open(name + '.tar.gz', 'w:gz')
-
-	tar.add(name)
-	tar.close()
-
-	cd(cwd)
-
-def targz_v2(src, dst, name):
-
-	# Check if the dst exists (always a dir)
+	# if TRUE will set dst to targets_parent_dir later
 	if dst == '':
-		dst = get_cwd()
-
-	# Check if a name is specifiyed, otherwise get it from the end of the src
-	if name == '':
-		if src.endswith('/'):
-			name = src[:-1].rpartition('/')[2]
-		else:
-			name = src.rpartition('/')[2]
-
-	# Check if dst has / in string
-	if dst.endswith('/'):
-		dst = dst + name
+		use_parent = True
 	else:
-		dst = dst + '/' + name
+		use_parent = False
 
-	# OVER WRITES PREVIOUS FILE. UN-COMMENT TO NOT OVER WRITE EXISTING FILE
-	# Check if the dst dir/file exits (can be a dir or file)
-	# if does_this_exist(dst):
-	# 	__msg_dst_already_exits(dst)
+	# Add trailing / to all dirctorys, for the fun of it.
+	if not target.endswith('/'):
+		target += '/'
 
-	if verbose:
-		print 'Archiving: "' + src + '" to: "' + dst + '.tar.gz"'
+	if not dst.endswith('/'):
+		dst += '/'
 
-	tar = tarfile.open(dst + '.tar.gz', 'w:gz')
+	# From the target, get the target dirctory name & it's parents path.
+	target_dir = target[:-1].rpartition('/')[2]
+	targets_parent_dir = target[:-1].rpartition('/')[0] + '/'
 
-	tar.add(src)
-	tar.close()
+	if use_parent:
+		dst = targets_parent_dir
 
-def untar(src, dst):
+	if not extract:
+		cd(targets_parent_dir)
+		print 'Archiving: "' + target + '" to "' + dst + target_dir + '.tar.gz"'
+		tar = tarfile.open(dst + target_dir + '.tar.gz', 'w:gz')
+		tar.add(target_dir)
+	else:
+		cd(dst)
+		print 'Extracting: "' + targets_parent_dir + target_dir + '" to "' + dst + '"'
+		tar = tarfile.open(targets_parent_dir + target_dir)
+		tar.extractall()
 
-	cwd = get_cwd()
-
-	if dst == '':
-		dst = cwd
-
-	cd(dst)
-	tar = tarfile.open(src)
-	tar.extractall()
 	tar.close()
 	cd(cwd)
-
-
