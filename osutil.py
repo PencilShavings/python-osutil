@@ -4,119 +4,33 @@ import platform
 import tarfile
 
 
-def get_kernel():
-	kernel_name = platform.system()
-	kernel_version_full = platform.release()
-	kernel_version = None
-
-	if kernel_name == 'Linux':
-		kernel_version = kernel_version_full.partition('-')[0]
-
-	if kernel_name == 'Darwin':
-		kernel_version = kernel_version_full
-
-	if kernel_name == kernel_name.rpartition('-')[0]:
-		kernel_name = 'Cygwin-NT'
-		kernel_version = kernel_version_full.partition('(')[0]
-
-	if kernel_name == 'Windows':
-		kernel_name = 'Windows-NT'
-		kernel_version_full = platform.win32_ver()[1]
-		kernel_version = platform.win32_ver()[1].rpartition('.')[0]
-
-	info = [kernel_name, kernel_version, kernel_version_full]
-
-	return info
-
-def get_os():
-	kernel = get_kernel()[0]
-	os_type = None
-	os_version = None
-	os_generic = None
-
+def system():
+	kernel = platform.system()
 	if kernel == 'Linux':
-		os_type = platform.linux_distribution()[0]
-		if os_type == 'CentOS Linux':
-			os_type = 'CentOS'
-		elif (os_type == 'debian') and (file_exists('/usr/bin/raspi-config')):
-			os_type = 'Raspbian'
-
-		os_version = platform.linux_distribution()[1][:3]
-		os_generic = 'Linux'
-
-	if kernel == 'Darwin':
-		os_type = 'MacOS'
-		os_version = platform.mac_ver()[0]
-		os_generic = 'Mac'
-
-	if kernel == 'Cygwin-NT':
-		os_type = 'Cygwin'
-
-		# 5.0 = W2000, 5.1 = XP, 6.0 = Vista
-
-		if platform.system() == 'CYGWIN_NT-10.0':
-			os_version = '10'
-		elif platform.system() == 'CYGWIN_NT-6.1':
-			os_version = '7'
-		else:
-			os_version = 'N/A'
-
-		os_generic = os_type
-
-	if kernel == 'Windows-NT':
-		os_type = 'Windows'
-		os_version = platform.release()
-		os_generic = os_type
-
-	info = [os_type, os_version, os_generic]
-
-	return info
-
-def get_arch():
-	arch = platform.machine()
-
-	if arch == 'x86_64' or arch == 'AMD64':
-		arch1 = '64-bit'
-		arch2 = 'x86_64'
-		arch3 = 'amd64'
-		# arch4 = 'x64'
-	elif arch == 'armv7l':
-		arch1 = 'arm'
-		if arch == 'armv7l':
-			arch2 = 'armv7'
-		else:
-			arch2 = arch
-		arch3 = arch
-	elif arch == 'i686':
-		arch1 = '32-bit'
-		arch2 = 'i686'
-		arch3 = 'x86'
-		# arch4 = 'i386'
+		return 'Linux'
+	elif kernel == 'Darwin':
+		return 'Mac'
 	else:
-		arch1 = arch
-		arch2 = 'N/A'
-		arch3 = 'N/A'
+		return 'UNKNOWN'
 
-	info = [arch1, arch2, arch3]
+def getenv_hostname():
+	return os.getenv('HOSTNAME')
 
-	return info
-
-def get_hostname():
-	return platform.node()
-
-def get_user():
-	if get_kernel()[0] == 'Windows-NT':
+def getenv_user():
+	if system() == 'Windows':
 		return os.getenv('USERNAME')
 	else:
 		return os.getenv('USER')
 
-def get_homeDir():
-	if get_kernel()[0] == 'Windows-NT':
+def getenv_home():
+	if system() == 'Windows':
 		return os.getenv('HOMEDRIVE') + os.getenv('HOMEPATH')
 	else:
 		return os.getenv('HOME')
 
+
 def get_cwd():
+	# os.getenv('PWD') does not funtion the same as getcwd(). It doesnt seem to respect the cd's.
 	return os.getcwd()
 
 def get_pid():
@@ -206,36 +120,27 @@ def cp(src, dst, verbose=False):
 def cd(dst):
 	os.chdir(dst)
 
-
-def ls(target, show='all'):
+def ls(target, show='', extention=''):
 	dirs = os.walk(target).next()[1]
 	files = os.walk(target).next()[2]
 
 	dirs.sort()
 	files.sort()
 
+	filtered_files = []
+	if extention != '':
+		for i in files:
+			if i.endswith(extention):
+				filtered_files.append(i)
+		files = filtered_files
+
 	if show == 'dirs':
 		return dirs
-	elif show == 'files':
+	elif show == 'files' or extention != '':
 		return files
 	else:
 		return dirs + files
 
-def ls_files_by_extention(folder, extention):
-	if folder == '':
-		folder = get_cwd()
-
-	result = []
-
-	path = os.walk(folder).next()[2]
-
-	for files in path:
-		if files.endswith(extention):
-			result.append(files)
-
-	result.sort()
-
-	return result
 
 def targz(target, dst='', extract=False, verbose=False):
 
