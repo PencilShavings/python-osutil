@@ -168,12 +168,14 @@ def targz(target, dst='', extract=False, verbose=False):
 
 	if not extract:
 		cd(targets_parent_dir)
-		print 'Archiving: "' + target + '" to "' + dst + target_dir + '.tar.gz"'
+		if verbose:
+			print 'Archiving: "' + target + '" to "' + dst + target_dir + '.tar.gz"'
 		tar = tarfile.open(dst + target_dir + '.tar.gz', 'w:gz')
 		tar.add(target_dir)
 	else:
 		cd(dst)
-		print 'Extracting: "' + targets_parent_dir + target_dir + '" to "' + dst + '"'
+		if verbose:
+			print 'Extracting: "' + targets_parent_dir + target_dir + '" to "' + dst + '"'
 		tar = tarfile.open(targets_parent_dir + target_dir)
 		tar.extractall()
 
