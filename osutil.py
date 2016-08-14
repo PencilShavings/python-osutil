@@ -144,7 +144,7 @@ def ls(target, show='', extention=''):
 		return dirs + files
 
 
-def targz(target, dst='', extract=False, verbose=False):
+def targz(target, dst='', extract=False, into=False, verbose=False):
 
 	cwd = get_cwd() + '/'
 
@@ -155,6 +155,7 @@ def targz(target, dst='', extract=False, verbose=False):
 		use_parent = False
 
 	# Add trailing / to all dirctorys, for the fun of it.
+	# WARNING: This includes EXTRACTING files! (example.tar.gz/)
 	if not target.endswith('/'):
 		target += '/'
 
@@ -162,24 +163,34 @@ def targz(target, dst='', extract=False, verbose=False):
 		dst += '/'
 
 	# From the target, get the target dirctory name & it's parents path.
-	target_dir = target[:-1].rpartition('/')[2]
+	target_file = target[:-1].rpartition('/')[2] # Removes the trailing "/" when EXTRACTING (example.tar.gz/ > exampl.tar.gz)
+	target_dir = target_file.partition('.')[0] # Removes anything after the first "." (example.tar.gz > example)
 	targets_parent_dir = target[:-1].rpartition('/')[0] + '/'
 
 	if use_parent:
 		dst = targets_parent_dir
 
 	if not extract:
+		# ARCHIVEING
 		cd(targets_parent_dir)
 		if verbose:
 			print 'Archiving: "' + target + '" to "' + dst + target_dir + '.tar.gz"'
 		tar = tarfile.open(dst + target_dir + '.tar.gz', 'w:gz')
 		tar.add(target_dir)
 	else:
+		# EXTRACTING
 		cd(dst)
-		if verbose:
-			print 'Extracting: "' + targets_parent_dir + target_dir + '" to "' + dst + '"'
-		tar = tarfile.open(targets_parent_dir + target_dir)
-		tar.extractall()
-
+		tar = tarfile.open(targets_parent_dir + target_file)
+		if not into:
+			if verbose:
+				print 'Extracting: "' + targets_parent_dir + target_dir + '" to "' + dst + '"'
+			tar.extractall()
+		else:
+			if verbose:
+				print 'Extracting: "' + targets_parent_dir + target_dir + '" into "' + dst + '"'
+			for member in tar.getmembers():
+				if not member.name == target_dir:
+					member.name = os.path.basename(member.name)  # remove the path by reset it
+					tar.extract(member)
 	tar.close()
 	cd(cwd)
