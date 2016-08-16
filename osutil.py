@@ -12,6 +12,10 @@ def system():
 		return 'Linux'
 	elif kernel == 'Darwin':
 		return 'Mac'
+	elif kernel == 'Windows':
+		return 'Windows'
+	elif kernel.rpartition('-')[0] == 'CYGWIN_NT':
+		return 'Cygwin'
 	else:
 		return 'UNKNOWN'
 
