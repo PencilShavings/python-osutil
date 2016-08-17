@@ -167,31 +167,35 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
 		dst += '/'
 
 	# From the target, get the target dirctory name & it's parents path.
-	target_file = target[:-1].rpartition('/')[2] # Removes the trailing "/" when EXTRACTING (example.tar.gz/ > exampl.tar.gz)
-	target_dir = target_file.partition('.')[0] # Removes anything after the first "." (example.tar.gz > example)
-	targets_parent_dir = target[:-1].rpartition('/')[0] + '/'
+	if extract:
+		target_file = target[:-1].rpartition('/')[2] # Removes the path & trailing "/" when EXTRACTING (PATH/example.tar.gz/ > example.tar.gz)
+		target_dir = target_file.rpartition('.')[0].rpartition('.')[0] # Removes anything after the first "." (example.tar.gz > example.tar > example)
+		targets_parent_dir = target[:-1].rpartition('/')[0] + '/' # (PATH/example.tar.gz/ > PATH/example.tar.gz > PATH > PATH/)
+	else:
+		target_dir = target[:-1].rpartition('/')[2]
+		targets_parent_dir = target[:-1].rpartition('/')[0] + '/'
 
 	if use_parent:
 		dst = targets_parent_dir
 
+	cd(dst)
+
 	if not extract:
 		# ARCHIVEING
-		cd(targets_parent_dir)
 		if verbose:
 			print 'Archiving: "' + target + '" to "' + dst + target_dir + '.tar.gz"'
 		tar = tarfile.open(dst + target_dir + '.tar.gz', 'w:gz')
 		tar.add(target_dir)
 	else:
 		# EXTRACTING
-		cd(dst)
-		tar = tarfile.open(targets_parent_dir + target_file)
+		tar = tarfile.open(target[:-1])
 		if not into:
 			if verbose:
-				print 'Extracting: "' + targets_parent_dir + target_dir + '" to "' + dst + '"'
+				print 'Extracting: "' + target[:-1] + '" to "' + dst + '"'
 			tar.extractall()
 		else:
 			if verbose:
-				print 'Extracting: "' + targets_parent_dir + target_dir + '" into "' + dst + '"'
+				print 'Extracting: "' + target[:-1] + '" into "' + dst + '"'
 			for member in tar.getmembers():
 				if not member.name == target_dir:
 					member.name = './' + str(member.name).partition('/')[2]
