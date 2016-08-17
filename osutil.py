@@ -194,7 +194,7 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
 				print 'Extracting: "' + targets_parent_dir + target_dir + '" into "' + dst + '"'
 			for member in tar.getmembers():
 				if not member.name == target_dir:
-					member.name = os.path.basename(member.name)  # remove the path by reset it
+					member.name = './' + str(member.name).partition('/')[2]
 					tar.extract(member)
 	tar.close()
 	cd(cwd)
