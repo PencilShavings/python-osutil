@@ -152,53 +152,46 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
 
 	cwd = get_cwd() + '/'
 
-	# if TRUE will set dst to targets_parent_dir later
+	target_fullpath = os.path.abspath(target)
+	target_dir = target_fullpath.rpartition('/')[2]
+	parent_path = str(target_fullpath.rpartition('/')[0]) + '/'
+
 	if dst == '':
-		use_parent = True
-	else:
-		use_parent = False
-
-	# Add trailing / to all dirctorys, for the fun of it.
-	# WARNING: This includes EXTRACTING files! (example.tar.gz/)
-	if not target.endswith('/'):
-		target += '/'
-
+		dst = parent_path
 	if not dst.endswith('/'):
 		dst += '/'
 
-	# From the target, get the target dirctory name & it's parents path.
-	if extract:
-		target_file = target[:-1].rpartition('/')[2] # Removes the path & trailing "/" when EXTRACTING (PATH/example.tar.gz/ > example.tar.gz)
-		target_dir = target_file.rpartition('.')[0].rpartition('.')[0] # Removes anything after the first "." (example.tar.gz > example.tar > example)
-		targets_parent_dir = target[:-1].rpartition('/')[0] + '/' # (PATH/example.tar.gz/ > PATH/example.tar.gz > PATH > PATH/)
-	else:
-		target_dir = target[:-1].rpartition('/')[2]
-		targets_parent_dir = target[:-1].rpartition('/')[0] + '/'
+	# TODO: Raise Errors
+	# TODO: Loop through to find exact dir that does not exist
+	if not does_this_exist(target):
+		print '"' + target_fullpath + '" does not exist!'
+		exit()
 
-	if use_parent:
-		dst = targets_parent_dir
-
-	cd(dst)
+	if not does_this_exist(dst):
+		print '"' + dst + '" does not exist!'
+		exit()
 
 	if not extract:
-		# ARCHIVEING
+		# ARCHIVE
+		cd(parent_path)
 		if verbose:
-			print 'Archiving: "' + target + '" to "' + dst + target_dir + '.tar.gz"'
+			print 'Archiving: "' + target_fullpath + '" to "' + dst + target_dir + '.tar.gz"'
 		tar = tarfile.open(dst + target_dir + '.tar.gz', 'w:gz')
 		tar.add(target_dir)
+		tar.close()
 	else:
-		# EXTRACTING
-		tar = tarfile.open(target[:-1])
+		# EXTRACT
+		cd(dst)
+		if verbose:
+			print 'Extracting: "' + target_fullpath + '" to "' + dst + '"'
+		tar = tarfile.open(target_fullpath)
+
 		if not into:
-			if verbose:
-				print 'Extracting: "' + target[:-1] + '" to "' + dst + '"'
 			tar.extractall()
 		else:
-			if verbose:
-				print 'Extracting: "' + target[:-1] + '" into "' + dst + '"'
 			for member in tar.getmembers():
-				if not member.name == target_dir:
+				if not member.name == target_dir: # example.tar.gz is somehow being read as example
 					member.name = './' + str(member.name).partition('/')[2]
 					tar.extract(member)
-	tar.close()
+		tar.close()
 	cd(cwd)
