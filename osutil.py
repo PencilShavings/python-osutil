@@ -1,10 +1,12 @@
+"""A wrapper for various shell based functions found in the os & shutil modules."""
+
+__author__ = 'PencilShavings'
+__version__ = '0.0.5'
+
 import os
 import shutil
 import platform
 import tarfile
-
-__author__ = 'PencilShavings'
-__version__ = '0.0.5'
 
 def system():
 	kernel = platform.system()
