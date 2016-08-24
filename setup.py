@@ -9,7 +9,7 @@ setup(
 	license='MIT',
 	author=osutil.__author__,
 	author_email='eb.pencilshavings@gmail.com',
-	description='A wapper for various shell based functions found in the os & shutil modules.',
+	description=osutil.__doc__,
 	classifiers=[
 		'Development Status :: 3 - Alpha',
 		'Intended Audience :: Developers',
