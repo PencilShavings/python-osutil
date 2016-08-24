@@ -4,7 +4,7 @@ import platform
 import tarfile
 
 __author__ = 'PencilShavings'
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 def system():
 	kernel = platform.system()
