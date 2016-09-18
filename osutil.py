@@ -149,6 +149,19 @@ def ls(target, show='', extention=''):
 	else:
 		return dirs + files
 
+def echo(msg, dst='', append=False):
+
+	if append:
+		mode = 'a'
+	else:
+		mode = 'w'
+
+	if dst == '':
+		print msg
+	else:
+		tmp = open(dst, mode)
+		tmp.write(msg)
+		tmp.close()
 
 def targz(target, dst='', extract=False, into=False, verbose=False):
 
