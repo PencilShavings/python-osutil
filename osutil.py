@@ -163,6 +163,19 @@ def echo(msg, dst='', append=False):
 		tmp.write(msg)
 		tmp.close()
 
+def cat(target, aslist = False):
+	f = open(target, 'r')
+
+	if aslist:
+		# s = f.readlines()
+		# s = [x.strip() for x in f.readlines()]
+		s = f.read().splitlines()
+	else:
+		s = f.read()
+	f.close()
+
+	return s
+
 def targz(target, dst='', extract=False, into=False, verbose=False):
 
 	cwd = get_cwd() + '/'
