@@ -128,12 +128,23 @@ def cp(src, dst, verbose=False):
 def cd(dst):
 	os.chdir(dst)
 
-def ls(target, show='', extention=''):
+def ls(target, show_dirs=True, show_files=True,  show_hidden=False, extention=''):
 	dirs = os.walk(target).next()[1]
 	files = os.walk(target).next()[2]
 
 	dirs.sort()
 	files.sort()
+
+	if not show_hidden:
+		for x in dirs[:]:
+			if x.startswith('.'):
+				dirs.remove(x)
+		for y in files[:]:
+			if y.startswith('.'):
+				files.remove(y)
+
+	if extention != '':
+		show_dirs = False
 
 	filtered_files = []
 	if extention != '':
@@ -142,12 +153,12 @@ def ls(target, show='', extention=''):
 				filtered_files.append(i)
 		files = filtered_files
 
-	if show == 'dirs':
-		return dirs
-	elif show == 'files' or extention != '':
-		return files
-	else:
-		return dirs + files
+	listing = []
+	if show_dirs:
+		listing += dirs
+	if show_files:
+		listing += files
+	return listing
 
 def echo(msg, dst='', append=False):
 
