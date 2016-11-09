@@ -90,18 +90,22 @@ def does_this_exist(target):
 def ln(src, dst):
 	os.symlink(src, dst)
 
-def mkdir(target, path=True, verbose=False):
+def mkdir(target, path=True, verbose=False, msg=None):
 	if verbose:
-		print 'Creating: ' + target
+		if not type(msg) == str:
+			msg = 'Creating: ' + target
+		print msg
 
 	if path:
 		os.makedirs(target)
 	else:
 		os.mkdir(target)
 
-def rm(target, verbose=False):
+def rm(target, verbose=False, msg=None):
 	if verbose:
-		print 'Removing: "' + target + '"'
+		if not type(msg) == str:
+			msg = 'Removing: "' + target + '"'
+		print msg
 
 	if is_dir(target):
 		shutil.rmtree(target)
@@ -109,15 +113,19 @@ def rm(target, verbose=False):
 	if is_file(target):
 		os.remove(target)
 
-def mv(src, dst, verbose=False):
+def mv(src, dst, verbose=False, msg=None):
 	if verbose:
-		print 'Moving: "' + src + '" to: "' + dst + '"'
+		if not type(msg) == str:
+			msg = 'Moving: "' + src + '" to: "' + dst + '"'
+		print msg
 
 	shutil.move(src, dst)
 
-def cp(src, dst, verbose=False):
+def cp(src, dst, verbose=False, msg=None):
 	if verbose:
-		print 'Copying: "' + src + '" to: "' + dst + '"'
+		if not type(msg) == str:
+			msg = 'Copying: "' + src + '" to: "' + dst + '"'
+		print msg
 
 	if is_dir(src):
 		shutil.copytree(src, dst)
@@ -129,6 +137,7 @@ def cd(dst):
 	os.chdir(dst)
 
 def ls(target, show_dirs=True, show_files=True,  show_hidden=False, extention=''):
+	# TODO: Find a way to filter file without extentions.
 	dirs = os.walk(target).next()[1]
 	files = os.walk(target).next()[2]
 
