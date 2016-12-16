@@ -183,15 +183,19 @@ def echo(msg, dst='', append=False):
 		tmp.write(msg)
 		tmp.close()
 
-def cat(target, aslist = False):
+def cat(target, aslist=False, strip=True):
 	f = open(target, 'r')
 
 	if aslist:
-		# s = f.readlines()
-		# s = [x.strip() for x in f.readlines()]
 		s = f.read().splitlines()
+		if strip:
+			for x in s[:]:
+				if x == '':
+					s.remove(x)
 	else:
 		s = f.read()
+		if strip:
+			s = s.rstrip('\n')
 	f.close()
 
 	return s
