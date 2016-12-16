@@ -1,7 +1,7 @@
 """A wrapper for various shell based functions found in the os & shutil modules."""
 
 __author__ = 'PencilShavings'
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 import os
 import shutil
