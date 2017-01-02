@@ -94,7 +94,7 @@ def mkdir(target, path=True, verbose=False, msg=None):
 	if verbose:
 		if not type(msg) == str:
 			msg = 'Creating: ' + target
-		print msg
+		echo(msg)
 
 	if path:
 		os.makedirs(target)
@@ -105,7 +105,7 @@ def rm(target, verbose=False, msg=None):
 	if verbose:
 		if not type(msg) == str:
 			msg = 'Removing: "' + target + '"'
-		print msg
+		echo(msg)
 
 	if is_dir(target):
 		shutil.rmtree(target)
@@ -117,7 +117,7 @@ def mv(src, dst, verbose=False, msg=None):
 	if verbose:
 		if not type(msg) == str:
 			msg = 'Moving: "' + src + '" to: "' + dst + '"'
-		print msg
+		echo(msg)
 
 	shutil.move(src, dst)
 
@@ -125,7 +125,7 @@ def cp(src, dst, verbose=False, msg=None):
 	if verbose:
 		if not type(msg) == str:
 			msg = 'Copying: "' + src + '" to: "' + dst + '"'
-		print msg
+		echo(msg)
 
 	if is_dir(src):
 		shutil.copytree(src, dst)
@@ -216,18 +216,18 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
 	# TODO: Raise Errors
 	# TODO: Loop through to find exact dir that does not exist
 	if not does_this_exist(target):
-		print '"' + target_fullpath + '" does not exist!'
+		echo('"' + target_fullpath + '" does not exist!')
 		exit()
 
 	if not does_this_exist(dst):
-		print '"' + dst + '" does not exist!'
+		echo('"' + dst + '" does not exist!')
 		exit()
 
 	if not extract:
 		# ARCHIVE
 		cd(parent_path)
 		if verbose:
-			print 'Archiving: "' + target_fullpath + '" to "' + dst + target_dir + '.tar.gz"'
+			echo('Archiving: "' + target_fullpath + '" to "' + dst + target_dir + '.tar.gz"')
 		tar = tarfile.open(dst + target_dir + '.tar.gz', 'w:gz')
 		tar.add(target_dir)
 		tar.close()
@@ -235,7 +235,7 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
 		# EXTRACT
 		cd(dst)
 		if verbose:
-			print 'Extracting: "' + target_fullpath + '" to "' + dst + '"'
+			echo('Extracting: "' + target_fullpath + '" to "' + dst + '"')
 		tar = tarfile.open(target_fullpath)
 
 		if not into:
