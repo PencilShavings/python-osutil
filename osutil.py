@@ -32,7 +32,7 @@ def getenv_user():
 
 def getenv_home():
 	if system() == 'Windows':
-		return os.getenv('HOMEDRIVE') + os.getenv('HOMEPATH')
+		return str(os.getenv('HOMEDRIVE') + os.getenv('HOMEPATH')).replace('\\', '/')
 	else:
 		return os.getenv('HOME')
 
