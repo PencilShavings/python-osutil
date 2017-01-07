@@ -7,6 +7,7 @@ import os
 import shutil
 import platform
 import tarfile
+import urllib
 
 def system():
 	kernel = platform.system()
@@ -183,8 +184,11 @@ def echo(msg, dst='', append=False):
 		tmp.write(msg)
 		tmp.close()
 
-def cat(target, aslist=False, strip=True):
-	f = open(target, 'r')
+def cat(target, aslist=False, strip=True, isurl=False):
+	if isurl:
+		f = urllib.urlopen(target)
+	else:
+		f = open(target, 'r')
 
 	if aslist:
 		s = f.read().splitlines()
