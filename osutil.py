@@ -8,6 +8,7 @@ import shutil
 import platform
 import tarfile
 import urllib
+import hashlib
 
 def system():
 	kernel = platform.system()
@@ -44,6 +45,13 @@ def get_cwd():
 
 def get_pid():
 	return str(os.getpid())
+
+def get_hash(target, hashtype='sha1'):
+
+	# Calls hashlib.[md5, sha1, sha224, sha256, sha384, sha512]
+	methodToCall = getattr(hashlib, hashtype)
+	h = methodToCall(target)
+	return h.hexdigest()
 
 
 def dir_exists(target):
