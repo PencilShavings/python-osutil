@@ -7,7 +7,7 @@ import os
 import shutil
 import platform
 import tarfile
-import urllib.request, urllib.parse, urllib.error
+import urllib
 import hashlib
 
 def system():
@@ -186,7 +186,7 @@ def echo(msg, dst='', append=False):
 		mode = 'w'
 
 	if dst == '':
-		print(msg)
+		print msg
 	else:
 		tmp = open(dst, mode)
 		tmp.write(msg)
@@ -194,7 +194,7 @@ def echo(msg, dst='', append=False):
 
 def cat(target, aslist=False, strip=True, isurl=False):
 	if isurl:
-		f = urllib.request.urlopen(target)
+		f = urllib.urlopen(target)
 	else:
 		f = open(target, 'r')
 
