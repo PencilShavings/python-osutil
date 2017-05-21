@@ -1,14 +1,15 @@
 """A wrapper for various shell based functions found in the os & shutil modules."""
 
-__author__ = 'PencilShavings'
-__version__ = '0.0.8'
-
 import os
 import shutil
 import platform
 import tarfile
-import urllib
 import hashlib
+import sys
+
+__author__ = 'PencilShavings'
+__version__ = '0.0.8'
+
 
 def system():
 	kernel = platform.system()
@@ -23,14 +24,17 @@ def system():
 	else:
 		return 'UNKNOWN'
 
+
 def getenv_hostname():
 	return os.getenv('HOSTNAME')
+
 
 def getenv_user():
 	if system() == 'Windows':
 		return os.getenv('USERNAME')
 	else:
 		return os.getenv('USER')
+
 
 def getenv_home():
 	if system() == 'Windows':
@@ -43,14 +47,12 @@ def get_cwd():
 	# os.getenv('PWD') does not funtion the same as getcwd(). It doesnt seem to respect the cd's.
 	return os.getcwd()
 
-def get_pid():
-	return str(os.getpid())
 
 def get_hash(target, hashtype='sha1'):
 
 	# Calls hashlib.[md5, sha1, sha224, sha256, sha384, sha512]
-	methodToCall = getattr(hashlib, hashtype)
-	h = methodToCall(target)
+	method_to_call = getattr(hashlib, hashtype)
+	h = method_to_call(target)
 	return h.hexdigest()
 
 
@@ -60,11 +62,13 @@ def dir_exists(target):
 	else:
 		return False
 
+
 def file_exists(target):
 	if os.path.isfile(target):
 		return True
 	else:
 		return False
+
 
 def link_exist(target):
 	if os.path.islink(target):
@@ -72,17 +76,18 @@ def link_exist(target):
 	else:
 		return False
 
-def pid_exists(pid):
-	return dir_exists('/proc/' + pid)
 
 def is_dir(target):
 	return dir_exists(target)
 
+
 def is_file(target):
 	return file_exists(target)
 
+
 def is_link(target):
 	return link_exist(target)
+
 
 def does_this_exist(target):
 	# Check if the target is a directory
@@ -99,6 +104,7 @@ def does_this_exist(target):
 def ln(src, dst):
 	os.symlink(src, dst)
 
+
 def mkdir(target, path=True, verbose=False, msg=None):
 	if verbose:
 		if not type(msg) == str:
@@ -109,6 +115,7 @@ def mkdir(target, path=True, verbose=False, msg=None):
 		os.makedirs(target)
 	else:
 		os.mkdir(target)
+
 
 def rm(target, verbose=False, msg=None):
 	if verbose:
@@ -122,6 +129,7 @@ def rm(target, verbose=False, msg=None):
 	if is_file(target):
 		os.remove(target)
 
+
 def mv(src, dst, verbose=False, msg=None):
 	if verbose:
 		if not type(msg) == str:
@@ -129,6 +137,7 @@ def mv(src, dst, verbose=False, msg=None):
 		echo(msg)
 
 	shutil.move(src, dst)
+
 
 def cp(src, dst, verbose=False, msg=None):
 	if verbose:
@@ -142,8 +151,10 @@ def cp(src, dst, verbose=False, msg=None):
 	if is_file(src):
 		shutil.copy(src, dst)
 
+
 def cd(dst):
 	os.chdir(dst)
+
 
 def ls(target, show_dirs=True, show_files=True,  show_hidden=False, extention=''):
 	# TODO: Find a way to filter file without extentions.
@@ -178,46 +189,61 @@ def ls(target, show_dirs=True, show_files=True,  show_hidden=False, extention=''
 		listing += files
 	return listing
 
+
 def echo(msg, dst='', append=False):
 
-	if append:
-		mode = 'a'
-	else:
-		mode = 'w'
-
 	if dst == '':
-		print msg
+		print(msg)
 	else:
+
+		if append:
+			mode = 'a'
+		else:
+			mode = 'w'
+
 		tmp = open(dst, mode)
 		tmp.write(msg)
 		tmp.close()
 
+
 def cat(target, aslist=False, strip=True, isurl=False):
+
 	if isurl:
-		f = urllib.urlopen(target)
+		if sys.version_info.major == 2:
+			from urllib import urlopen
+		else:
+			from urllib.request import urlopen
+		f = urlopen(target)
 	else:
 		f = open(target, 'r')
 
+	s = f.read()
+
+	if sys.version_info.major == 3:
+		s = s.decode()
+
 	if aslist:
-		s = f.read().splitlines()
+		s = s.splitlines()
+
 		if strip:
 			for x in s[:]:
 				if x == '':
 					s.remove(x)
 	else:
-		s = f.read()
+
 		if strip:
 			s = s.rstrip('\n')
 	f.close()
 
 	return s
 
+
 def targz(target, dst='', extract=False, into=False, verbose=False):
 
 	cwd = get_cwd() + '/'
 
 	target_fullpath = os.path.abspath(target)
-	target_dir = target_fullpath.rpartition('/')[2]
+	target_dir = str(target_fullpath.rpartition('/')[2])
 	parent_path = str(target_fullpath.rpartition('/')[0]) + '/'
 
 	if dst == '':
@@ -254,7 +280,7 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
 			tar.extractall()
 		else:
 			for member in tar.getmembers():
-				if not member.name == target_dir: # example.tar.gz is somehow being read as example
+				if not member.name == target_dir:  # example.tar.gz is somehow being read as example
 					member.name = './' + str(member.name).partition('/')[2]
 					tar.extract(member)
 		tar.close()
