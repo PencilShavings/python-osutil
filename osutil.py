@@ -156,37 +156,43 @@ def cd(dst):
 	os.chdir(dst)
 
 
-def ls(target, show_dirs=True, show_files=True,  show_hidden=False, extention=''):
-	# TODO: Find a way to filter file without extentions.
-	dirs = os.walk(target).next()[1]
-	files = os.walk(target).next()[2]
+def ls(target, show_dirs=True, show_files=True, show_hidden=False):
 
-	dirs.sort()
-	files.sort()
+	# Fix path issue
+	if not str(target).endswith('/'):
+		target += '/'
 
-	if not show_hidden:
-		for x in dirs[:]:
+	# Gets the contents of the specified path
+	target_listing = os.listdir(target)
+
+	dirs = []
+	files = []
+	hdirs = []
+	hfiles = []
+
+	# The sorting mechanism
+	for x in target_listing:
+		if is_dir(target + x):
 			if x.startswith('.'):
-				dirs.remove(x)
-		for y in files[:]:
-			if y.startswith('.'):
-				files.remove(y)
-
-	if extention != '':
-		show_dirs = False
-
-	filtered_files = []
-	if extention != '':
-		for i in files:
-			if i.endswith(extention):
-				filtered_files.append(i)
-		files = filtered_files
+				hdirs.append(x)
+			else:
+				dirs.append(x)
+		elif is_file(target + x):
+			if x.startswith('.'):
+				hfiles.append(x)
+			else:
+				files.append(x)
 
 	listing = []
+	if show_dirs and show_hidden:
+		listing += hdirs
 	if show_dirs:
 		listing += dirs
+	if show_files and show_hidden:
+		listing += hfiles
 	if show_files:
 		listing += files
+
 	return listing
 
 
