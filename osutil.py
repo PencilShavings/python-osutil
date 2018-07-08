@@ -225,8 +225,8 @@ def cat(target, aslist=False, strip=True, isurl=False):
 
 	s = f.read()
 
-	if sys.version_info.major == 3:
-		s = s.decode()
+	# if sys.version_info.major == 3:
+	# 	s = s.decode()
 
 	if aslist:
 		s = s.splitlines()
