@@ -12,6 +12,7 @@ __version__ = '0.0.9'
 
 
 def envar_parser(path):
+    """Parses environment variables from strings."""
 
     if str(path).startswith('~/'):
         path = path.replace('~', '$HOME')
@@ -30,6 +31,7 @@ def envar_parser(path):
 
 
 def system():
+    """Returns the base OS"""
 
     kernel = platform.system()
     if kernel == 'Linux':
@@ -45,12 +47,14 @@ def system():
 
 
 def get_cwd():
+    """Changes directories"""
 
     # os.getenv('PWD') does not funtion the same as getcwd(). It doesnt seem to respect the cd's.
     return os.getcwd()
 
 
 def get_hash(target, hashtype='sha1', parse=False):
+    """Calculates the hash of a file. Simplifies usage of hashlib"""
 
     if parse:
         target = envar_parser(target)
@@ -62,6 +66,7 @@ def get_hash(target, hashtype='sha1', parse=False):
 
 
 def dir_exists(target, parse=False):
+    """Checks if a directory exists"""
 
     if parse:
         target = envar_parser(target)
@@ -72,6 +77,7 @@ def dir_exists(target, parse=False):
 
 
 def file_exists(target, parse=False):
+    """Checks if a file exists"""
 
     if parse:
         target = envar_parser(target)
@@ -82,6 +88,7 @@ def file_exists(target, parse=False):
 
 
 def link_exist(target, parse=False):
+    """Checks if a system link exists"""
 
     if parse:
         target = envar_parser(target)
@@ -92,6 +99,7 @@ def link_exist(target, parse=False):
 
 
 def is_dir(target, parse=False):
+    """Checks if the target is a directory. Calls dir_exists()"""
 
     if parse:
         target = envar_parser(target)
@@ -99,6 +107,7 @@ def is_dir(target, parse=False):
 
 
 def is_file(target, parse=False):
+    """Checks if the target is a file. Calls file_exists()"""
 
     if parse:
         target = envar_parser(target)
@@ -106,6 +115,7 @@ def is_file(target, parse=False):
 
 
 def is_link(target, parse=False):
+    """Checks if the target is a system link. Calls link_exists()"""
 
     if parse:
         target = envar_parser(target)
@@ -113,6 +123,7 @@ def is_link(target, parse=False):
 
 
 def does_this_exist(target, parse=False):
+    """Checks if the target exists, whether it's a file or directory"""
 
     if parse:
         target = envar_parser(target)
@@ -128,6 +139,7 @@ def does_this_exist(target, parse=False):
 
 
 def ln(src, dst, parse=False):
+    """Creates a system link"""
 
     if parse:
         src = envar_parser(src)
@@ -136,6 +148,7 @@ def ln(src, dst, parse=False):
 
 
 def mkdir(target, path=True, verbose=False, msg=None, parse=False):
+    """Creates a directory"""
 
     if parse:
         target = envar_parser(target)
@@ -154,6 +167,7 @@ def mkdir(target, path=True, verbose=False, msg=None, parse=False):
 
 
 def rm(target, verbose=False, msg=None, parse=False):
+    """Deletes a file or directory, recursively)"""
 
     if parse:
         target = envar_parser(target)
@@ -173,6 +187,7 @@ def rm(target, verbose=False, msg=None, parse=False):
 
 
 def mv(src, dst, verbose=False, msg=None, parse=False):
+    """Moves a file or directory, recursively)"""
 
     if parse:
         src = envar_parser(src)
@@ -189,6 +204,7 @@ def mv(src, dst, verbose=False, msg=None, parse=False):
 
 
 def cp(src, dst, verbose=False, msg=None, parse=False):
+    """Copies a file or directory, recursively)"""
 
     if parse:
         src = envar_parser(src)
@@ -209,6 +225,7 @@ def cp(src, dst, verbose=False, msg=None, parse=False):
 
 
 def cd(dst, parse=False):
+    """Changes the working directory)"""
 
     if parse:
         dst = envar_parser(dst)
@@ -216,6 +233,7 @@ def cd(dst, parse=False):
 
 
 def ls(target, show_dirs=True, show_files=True, show_hidden=False, parse=False, recursive_ls=False):
+    """Lists the contents of a directory"""
 
     if parse:
         target = envar_parser(target)
@@ -279,6 +297,7 @@ def ls(target, show_dirs=True, show_files=True, show_hidden=False, parse=False, 
 
 
 def echo(msg, dst='', append=False, parse=False):
+    """Print text to the console or save it to a file"""
 
     if parse:
         msg = envar_parser(msg)
@@ -299,6 +318,7 @@ def echo(msg, dst='', append=False, parse=False):
 
 
 def cat(target, aslist=False, strip=True, isurl=False, parse=False):
+    """Reads the contents of a text file, whether it be a local or remote file"""
 
     if parse:
         target = envar_parser(target)
@@ -334,6 +354,7 @@ def cat(target, aslist=False, strip=True, isurl=False, parse=False):
 
 
 def targz(target, dst='', extract=False, into=False, verbose=False, parse=False):
+    """Creates a tar.gz file of a directory"""
 
     if parse:
         target = envar_parser(target)
