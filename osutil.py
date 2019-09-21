@@ -156,14 +156,32 @@ def cd(dst):
     os.chdir(dst)
 
 
-def ls(target, show_dirs=True, show_files=True, show_hidden=False):
+def ls(target, show_dirs=True, show_files=True, show_hidden=False, recursive_ls=False):
 
     # Fix path issue
     if not str(target).endswith('/'):
         target += '/'
 
     # Gets the contents of the specified path
-    target_listing = os.listdir(target)
+    tmp_list = []
+    target_listing = []
+    # TODO: recursive_ls will show hidden directories & files!!
+    if recursive_ls:
+        for path, subdirs, files in os.walk(target):
+            tmp_list.append(path)
+            for name in files:
+                element = os.path.join(path, name)
+                element = element.replace('\\', '/')
+                tmp_list.append(element)
+        # Remove prefix
+        for x in tmp_list:
+            target_listing.append(x.replace(target, ''))
+
+    else:
+        target_listing = os.listdir(target)
+
+    if '' in target_listing:
+        target_listing.remove('')
 
     dirs = []
     files = []
@@ -192,6 +210,8 @@ def ls(target, show_dirs=True, show_files=True, show_hidden=False):
         listing += hfiles
     if show_files:
         listing += files
+
+    listing.sort()
 
     return listing
 
