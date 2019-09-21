@@ -11,7 +11,26 @@ __author__ = 'PencilShavings'
 __version__ = '0.0.9'
 
 
+def envar_parser(path):
+
+    if str(path).startswith('~/'):
+        path = path.replace('~', '$HOME')
+
+    if system() == 'Windows':
+        if '$HOME' in path:
+            path = path.replace('$HOME', str(os.getenv('HOMEDRIVE') + os.getenv('HOMEPATH')).replace('\\', '/'))
+        if '$USER' in path:
+            path = path.replace('$USER', os.getenv('USERNAME'))
+
+    for y in os.environ:
+        if '$' + y in path:
+            path = path.replace('$' + y, os.environ[y])
+
+    return path
+
+
 def system():
+
     kernel = platform.system()
     if kernel == 'Linux':
         return 'Linux'
@@ -25,30 +44,16 @@ def system():
         return 'UNKNOWN'
 
 
-def getenv_hostname():
-    return os.getenv('HOSTNAME')
-
-
-def getenv_user():
-    if system() == 'Windows':
-        return os.getenv('USERNAME')
-    else:
-        return os.getenv('USER')
-
-
-def getenv_home():
-    if system() == 'Windows':
-        return str(os.getenv('HOMEDRIVE') + os.getenv('HOMEPATH')).replace('\\', '/')
-    else:
-        return os.getenv('HOME')
-
-
 def get_cwd():
+
     # os.getenv('PWD') does not funtion the same as getcwd(). It doesnt seem to respect the cd's.
     return os.getcwd()
 
 
-def get_hash(target, hashtype='sha1'):
+def get_hash(target, hashtype='sha1', parse=False):
+
+    if parse:
+        target = envar_parser(target)
 
     # Calls hashlib.[md5, sha1, sha224, sha256, sha384, sha512]
     method_to_call = getattr(hashlib, hashtype)
@@ -56,40 +61,61 @@ def get_hash(target, hashtype='sha1'):
     return h.hexdigest()
 
 
-def dir_exists(target):
+def dir_exists(target, parse=False):
+
+    if parse:
+        target = envar_parser(target)
     if os.path.isdir(target):
         return True
     else:
         return False
 
 
-def file_exists(target):
+def file_exists(target, parse=False):
+
+    if parse:
+        target = envar_parser(target)
     if os.path.isfile(target):
         return True
     else:
         return False
 
 
-def link_exist(target):
+def link_exist(target, parse=False):
+
+    if parse:
+        target = envar_parser(target)
     if os.path.islink(target):
         return True
     else:
         return False
 
 
-def is_dir(target):
+def is_dir(target, parse=False):
+
+    if parse:
+        target = envar_parser(target)
     return dir_exists(target)
 
 
-def is_file(target):
+def is_file(target, parse=False):
+
+    if parse:
+        target = envar_parser(target)
     return file_exists(target)
 
 
-def is_link(target):
+def is_link(target, parse=False):
+
+    if parse:
+        target = envar_parser(target)
     return link_exist(target)
 
 
-def does_this_exist(target):
+def does_this_exist(target, parse=False):
+
+    if parse:
+        target = envar_parser(target)
     # Check if the target is a directory
     if is_dir(target):
         return True
@@ -101,11 +127,21 @@ def does_this_exist(target):
             return False
 
 
-def ln(src, dst):
+def ln(src, dst, parse=False):
+
+    if parse:
+        src = envar_parser(src)
+        dst = envar_parser(dst)
     os.symlink(src, dst)
 
 
-def mkdir(target, path=True, verbose=False, msg=None):
+def mkdir(target, path=True, verbose=False, msg=None, parse=False):
+
+    if parse:
+        target = envar_parser(target)
+        if type(msg) == str and parse:
+            msg = envar_parser(msg)
+
     if verbose:
         if not type(msg) == str:
             msg = 'Creating: ' + target
@@ -117,7 +153,13 @@ def mkdir(target, path=True, verbose=False, msg=None):
         os.mkdir(target)
 
 
-def rm(target, verbose=False, msg=None):
+def rm(target, verbose=False, msg=None, parse=False):
+
+    if parse:
+        target = envar_parser(target)
+        if type(msg) == str and parse:
+            msg = envar_parser(msg)
+
     if verbose:
         if not type(msg) == str:
             msg = 'Removing: "' + target + '"'
@@ -130,7 +172,14 @@ def rm(target, verbose=False, msg=None):
         os.remove(target)
 
 
-def mv(src, dst, verbose=False, msg=None):
+def mv(src, dst, verbose=False, msg=None, parse=False):
+
+    if parse:
+        src = envar_parser(src)
+        dst = envar_parser(dst)
+        if type(msg) == str and parse:
+            msg = envar_parser(msg)
+
     if verbose:
         if not type(msg) == str:
             msg = 'Moving: "' + src + '" to: "' + dst + '"'
@@ -139,7 +188,14 @@ def mv(src, dst, verbose=False, msg=None):
     shutil.move(src, dst)
 
 
-def cp(src, dst, verbose=False, msg=None):
+def cp(src, dst, verbose=False, msg=None, parse=False):
+
+    if parse:
+        src = envar_parser(src)
+        dst = envar_parser(dst)
+        if type(msg) == str and parse:
+            msg = envar_parser(msg)
+
     if verbose:
         if not type(msg) == str:
             msg = 'Copying: "' + src + '" to: "' + dst + '"'
@@ -152,11 +208,17 @@ def cp(src, dst, verbose=False, msg=None):
         shutil.copy(src, dst)
 
 
-def cd(dst):
+def cd(dst, parse=False):
+
+    if parse:
+        dst = envar_parser(dst)
     os.chdir(dst)
 
 
-def ls(target, show_dirs=True, show_files=True, show_hidden=False, recursive_ls=False):
+def ls(target, show_dirs=True, show_files=True, show_hidden=False, parse=False, recursive_ls=False):
+
+    if parse:
+        target = envar_parser(target)
 
     # Fix path issue
     if not str(target).endswith('/'):
@@ -216,7 +278,11 @@ def ls(target, show_dirs=True, show_files=True, show_hidden=False, recursive_ls=
     return listing
 
 
-def echo(msg, dst='', append=False):
+def echo(msg, dst='', append=False, parse=False):
+
+    if parse:
+        msg = envar_parser(msg)
+        dst = envar_parser(dst)
 
     if dst == '':
         print(msg)
@@ -232,7 +298,10 @@ def echo(msg, dst='', append=False):
         tmp.close()
 
 
-def cat(target, aslist=False, strip=True, isurl=False):
+def cat(target, aslist=False, strip=True, isurl=False, parse=False):
+
+    if parse:
+        target = envar_parser(target)
 
     if isurl:
         if sys.version_info.major == 2:
@@ -246,7 +315,7 @@ def cat(target, aslist=False, strip=True, isurl=False):
     s = f.read()
 
     # if sys.version_info.major == 3:
-    #     s = s.decode()
+    # 	s = s.decode()
 
     if aslist:
         s = s.splitlines()
@@ -264,7 +333,11 @@ def cat(target, aslist=False, strip=True, isurl=False):
     return s
 
 
-def targz(target, dst='', extract=False, into=False, verbose=False):
+def targz(target, dst='', extract=False, into=False, verbose=False, parse=False):
+
+    if parse:
+        target = envar_parser(target)
+        dst = envar_parser(envar_parser(dst))
 
     cwd = get_cwd() + '/'
 
@@ -276,7 +349,7 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
         dst = parent_path
     if not dst.endswith('/'):
         dst += '/'
-
+    # TODO: envar_parser(dst)
     # TODO: Raise Errors
     # TODO: Loop through to find exact dir that does not exist
     if not does_this_exist(target):
@@ -311,4 +384,3 @@ def targz(target, dst='', extract=False, into=False, verbose=False):
                     tar.extract(member)
         tar.close()
     cd(cwd)
-
