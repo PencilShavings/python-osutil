@@ -8,7 +8,7 @@ setup(
 	url='https://github.com/PencilShavings/python-osutil',
 	license='MIT',
 	author=osutil.__author__,
-	author_email='eb.pencilshavings@gmail.com',
+	author_email='eb.pencilshavings@protonmail.com',
 	description=osutil.__doc__,
 	classifiers=[
 		'Development Status :: 3 - Alpha',
