@@ -1,7 +1,7 @@
-from distutils.core import setup
+import setuptools
 import osutil
 
-setup(
+setuptools.setup(
 	name=osutil.__name__,
 	version=osutil.__version__,
 	py_modules=['osutil'],
