@@ -10,6 +10,8 @@ setuptools.setup(
 	author=osutil.__author__,
 	author_email='eb.pencilshavings@protonmail.com',
 	description=osutil.__doc__,
+	long_description=long_description,
+    long_description_content_type="text/markdown",
 	classifiers=[
 		'Development Status :: 3 - Alpha',
 		'License :: OSI Approved :: MIT License',
