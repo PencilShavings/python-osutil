@@ -12,9 +12,7 @@ setup(
 	description=osutil.__doc__,
 	classifiers=[
 		'Development Status :: 3 - Alpha',
-		'Intended Audience :: Developers',
-		'Topic :: Software Development',
 		'License :: OSI Approved :: MIT License',
-		'Programming Language :: Python :: 2'
+		'Programming Language :: Python :: 3'
 	]
 )
