@@ -12,6 +12,9 @@ setuptools.setup(
 	description=osutil.__doc__,
 	long_description=long_description,
     long_description_content_type="text/markdown",
+    project_urls={
+        "Bug Tracker": "https://github.com/PencilShavings/python-osutil/issues",
+    },
 	classifiers=[
 		'Development Status :: 3 - Alpha',
 		'License :: OSI Approved :: MIT License',
