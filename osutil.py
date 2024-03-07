@@ -317,39 +317,56 @@ def echo(msg, dst='', append=False, parse=False):
         tmp.close()
 
 
-def cat(target, aslist=False, strip=True, isurl=False, parse=False):
+def cat(target, aslist=False, strip=True, isurl=False, parse=False, comment=""):
     """Reads the contents of a text file, whether it be a local or remote file"""
 
+    # parse the file path
     if parse:
         target = envar_parser(target)
 
+    # if tartget is url cat the url
     if isurl:
         if sys.version_info.major == 2:
             from urllib import urlopen
         else:
             from urllib.request import urlopen
         f = urlopen(target)
+    # if target is a local file, open the file
     else:
         f = open(target, 'r')
 
     s = f.read()
 
-    # if sys.version_info.major == 3:
-    # 	s = s.decode()
+    if sys.version_info.major == 3 and type(s) is bytes:
+     	s = s.decode()
 
+    # Remove comment lines
+    if comment != "":
+        newstring = ""
+        for line in s.splitlines():
+            if line.startswith(comment):
+                pass
+            else:
+                newstring += "\n"
+                newstring += line
+            s = newstring
+
+    # Convert to list, removing empty lines
     if aslist:
         s = s.splitlines()
-
         if strip:
             for x in s[:]:
                 if x == '':
                     s.remove(x)
+    # Strip the trailing newline
     else:
-
         if strip:
             s = s.rstrip('\n')
+
+    # Close the original file
     f.close()
 
+    # Return the end result
     return s
 
 
@@ -405,3 +422,4 @@ def targz(target, dst='', extract=False, into=False, verbose=False, parse=False)
                     tar.extract(member)
         tar.close()
     cd(cwd)
+
